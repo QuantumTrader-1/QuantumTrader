@@ -14,6 +14,8 @@ class CoinAnalysis:
 
     recommendation: str
 
+    signal: str
+
     trend: str
 
     risk: str

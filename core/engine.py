@@ -1,37 +1,34 @@
-from core.brains.atlas import Atlas
-from core.watchlist import Watchlist
-
-from core.market import COINS, get_market_data
+from core.services.market_service import MarketService
+from core.services.atlas_service import AtlasService
+from core.services.watchlist_service import WatchlistService
 
 
 class QuantumEngine:
 
     def __init__(self):
 
-        self.atlas = Atlas()
-        self.watchlist = Watchlist()
+        self.market_service = MarketService()
+        self.atlas_service = AtlasService()
+        self.watchlist_service = WatchlistService()
+
+        self.last_scan = None
 
     def scan_market(self):
 
-        self.watchlist.clear()
+        markets = self.market_service.get_all_markets()
 
-        results = []
+        analyses = self.atlas_service.analyze_markets(markets)
 
-        for coin in COINS:
+        self.watchlist_service.build_watchlist(analyses)
 
-            market = get_market_data(coin)
+        self.last_scan = analyses
 
-            if market is None:
-                continue
-
-            analysis = self.atlas.analyze(coin, market)
-
-            self.watchlist.update(analysis)
-
-            results.append(analysis)
-
-        return results
+        return analyses
 
     def top_opportunities(self):
 
-        return self.watchlist.top()
+        return self.watchlist_service.watchlist.top()
+
+    def best_opportunity(self):
+
+        return self.watchlist_service.best_opportunity()

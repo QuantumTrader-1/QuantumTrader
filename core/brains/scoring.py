@@ -2,6 +2,9 @@ from core.brains.trend import detect_trend
 from core.brains.momentum import momentum_score
 from core.brains.volume import volume_score
 from core.brains.history import history_score
+from core.brains.volatility import volatility_score
+from core.brains.liquidity import liquidity_score
+from core.brains.strength import strength_score
 
 
 def calculate_score(history, market):
@@ -23,8 +26,24 @@ def calculate_score(history, market):
     # Volume
     score += volume_score(market["volume"])
 
+    # Volatility
+    score += volatility_score(
+        market["high"],
+        market["low"],
+        market["price"]
+    )
+
+    # Liquidity
+    score += liquidity_score(
+        market["volume"],
+        market["price"]
+    )
+
     # Historical Confidence
     score += history_score(history)
+
+    # Strength Bonus
+    score += strength_score(score, trend)
 
     # Clamp score
     score = max(0, min(score, 100))

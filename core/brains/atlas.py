@@ -2,6 +2,7 @@ from core.brains.memory import remember, recall
 from core.brains.scoring import calculate_score
 from core.brains.trend import detect_trend
 from core.brains.risk import risk_level
+from core.brains.signals import trading_signal
 
 from core.models import CoinAnalysis
 
@@ -31,6 +32,8 @@ class Atlas:
 
         risk = risk_level(score)
 
+        signal = trading_signal(score, trend, risk)
+
         if score >= STRONG_WATCH_SCORE:
             recommendation = "STRONG WATCH"
 
@@ -49,6 +52,7 @@ class Atlas:
             change=data["change"],
             score=score,
             recommendation=recommendation,
+            signal=signal,
             trend=trend,
             risk=risk,
             volume=data["volume"],
