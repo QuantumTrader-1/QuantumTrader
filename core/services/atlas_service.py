@@ -1,4 +1,5 @@
 from core.brains.atlas import Atlas
+from core.models import Analysis
 
 
 class AtlasService:
@@ -11,9 +12,25 @@ class AtlasService:
 
         analyses = []
 
-        for coin, market in markets:
+        for symbol, market in markets:
 
-            analysis = self.atlas.analyze(coin, market)
+            result = self.atlas.analyze(symbol, market)
+
+            analysis = Analysis(
+                symbol=result.symbol,
+                price=result.price,
+                change=result.change,
+                score=result.score,
+                signal=result.signal,
+                recommendation=result.recommendation,
+                risk=result.risk,
+                trend=result.trend,
+                volume=result.volume,
+                high=result.high,
+                low=result.low,
+                confidence=result.score,
+                reason=""
+            )
 
             analyses.append(analysis)
 

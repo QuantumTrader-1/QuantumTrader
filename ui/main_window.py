@@ -2,6 +2,7 @@ import customtkinter as ctk
 
 from core.engine import QuantumEngine
 
+from ui.header import Header
 from ui.sidebar import Sidebar
 from ui.market_table import MarketTable
 from ui.detail_panel import DetailPanel
@@ -18,25 +19,33 @@ class MainWindow(ctk.CTk):
 
         self.engine = QuantumEngine()
 
-        self.title("🚀 Quantum Trader Genesis")
-        self.geometry("1600x900")
+        self.title("Quantum Trader Genesis")
+        self.geometry("1700x950")
+        self.minsize(1500, 850)
+
+        # ---------------- Grid ---------------- #
 
         self.grid_columnconfigure(1, weight=3)
         self.grid_columnconfigure(2, weight=2)
-        self.grid_rowconfigure(1, weight=1)
 
-        header = ctk.CTkLabel(
-            self,
-            text="🚀 QUANTUM TRADER",
-            font=("Segoe UI", 34, "bold")
-        )
+        self.grid_rowconfigure(1, weight=0)
+        self.grid_rowconfigure(2, weight=1)
+        self.grid_rowconfigure(3, weight=0)
 
-        header.grid(
+        # ---------------- Header ---------------- #
+
+        self.header = Header(self)
+
+        self.header.grid(
             row=0,
             column=0,
             columnspan=3,
-            pady=(20, 10)
+            sticky="ew",
+            padx=10,
+            pady=(10, 0)
         )
+
+        # ---------------- Sidebar ---------------- #
 
         self.sidebar = Sidebar(
             self,
@@ -44,37 +53,43 @@ class MainWindow(ctk.CTk):
         )
 
         self.sidebar.grid(
-            row=1,
+            row=2,
             column=0,
             sticky="ns",
-            padx=15,
-            pady=15
+            padx=(10, 5),
+            pady=10
         )
+
+        # ---------------- Market ---------------- #
 
         self.market = MarketTable(self)
 
         self.market.grid(
-            row=1,
+            row=2,
             column=1,
             sticky="nsew",
-            padx=10,
-            pady=15
+            padx=5,
+            pady=10
         )
+
+        # ---------------- Details ---------------- #
 
         self.details = DetailPanel(self)
 
         self.details.grid(
-            row=1,
+            row=2,
             column=2,
             sticky="nsew",
-            padx=(0, 15),
-            pady=15
+            padx=(5, 10),
+            pady=10
         )
+
+        # ---------------- Status ---------------- #
 
         self.status = StatusBar(self)
 
         self.status.grid(
-            row=2,
+            row=3,
             column=0,
             columnspan=3,
             sticky="ew"
@@ -82,17 +97,17 @@ class MainWindow(ctk.CTk):
 
         self.scan_market()
 
-    # --------------------------------------------------
+    # ------------------------------------------------
 
     def coin_selected(self, coin):
 
         self.details.show_coin(coin)
 
-    # --------------------------------------------------
+    # ------------------------------------------------
 
     def scan_market(self):
 
-        self.status.set_status("🔄 Scanning Coinbase...")
+        self.status.set_status("🔄 Scanning market...")
 
         self.engine.scan_market()
 
@@ -110,5 +125,5 @@ class MainWindow(ctk.CTk):
         self.details.show_coin(best)
 
         self.status.set_status(
-            f"🟢 Ready • {len(coins)} coins loaded"
+            f"🟢 Ready • {len(coins)} opportunities"
         )
