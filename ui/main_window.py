@@ -22,6 +22,8 @@ class MainWindow(ctk.CTk):
         self.engine = QuantumEngine()
 
         self.all_coins = []
+        self.filtered_coins = []
+        self.sort_descending = True
 
         self.title("Quantum Trader Genesis")
         self.geometry("1700x950")
@@ -29,7 +31,6 @@ class MainWindow(ctk.CTk):
 
         self.grid_columnconfigure(1, weight=3)
         self.grid_columnconfigure(2, weight=2)
-
         self.grid_rowconfigure(3, weight=1)
 
         # Header
@@ -47,7 +48,8 @@ class MainWindow(ctk.CTk):
         self.toolbar = Toolbar(
             self,
             self.scan_market,
-            self.search_market
+            self.search_market,
+            self.sort_market
         )
 
         self.toolbar.grid(
@@ -120,8 +122,14 @@ class MainWindow(ctk.CTk):
         self.scan_market()
 
     def coin_selected(self, coin):
-
         self.details.show_coin(coin)
+
+    def refresh_table(self):
+
+        self.market.update_table(
+            self.filtered_coins,
+            self.coin_selected
+        )
 
     def scan_market(self):
 
@@ -131,11 +139,9 @@ class MainWindow(ctk.CTk):
         analyses = self.engine.scan_market()
 
         self.all_coins = self.engine.top_opportunities()
+        self.filtered_coins = list(self.all_coins)
 
-        self.market.update_table(
-            self.all_coins,
-            self.coin_selected
-        )
+        self.refresh_table()
 
         self.dashboard.update_stats(analyses)
 
@@ -162,18 +168,23 @@ class MainWindow(ctk.CTk):
         text = text.upper().strip()
 
         if text == "":
-
-            filtered = self.all_coins
-
+            self.filtered_coins = list(self.all_coins)
         else:
-
-            filtered = [
+            self.filtered_coins = [
                 coin
                 for coin in self.all_coins
                 if text in coin.symbol.upper()
             ]
 
-        self.market.update_table(
-            filtered,
-            self.coin_selected
+        self.refresh_table()
+
+    def sort_market(self):
+
+        self.filtered_coins.sort(
+            key=lambda c: c.score,
+            reverse=self.sort_descending
         )
+
+        self.sort_descending = not self.sort_descending
+
+        self.refresh_table()
