@@ -1,4 +1,7 @@
 import requests
+from core.brains.atlas import Atlas
+
+atlas = Atlas()
 
 COINS = [
     "BTC-USD",
@@ -61,6 +64,9 @@ def display_market():
                 f"${market['price']:>12,.4f}"
                 f"   {arrow} {market['change']:+7.2f}%"
             )
+
+            # Atlas analyzes and remembers every coin
+            atlas.analyze(coin, market)
 
     print("=" * 80)
 
