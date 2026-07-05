@@ -1,7 +1,6 @@
 import requests
-from core.brains.atlas import Atlas
 
-atlas = Atlas()
+from core.brains.atlas import Atlas
 
 COINS = [
     "BTC-USD",
@@ -13,9 +12,11 @@ COINS = [
 
 
 def get_market_data(product):
+
     url = f"https://api.exchange.coinbase.com/products/{product}/stats"
 
     try:
+
         response = requests.get(url, timeout=10)
         response.raise_for_status()
 
@@ -44,31 +45,32 @@ def get_market_data(product):
 
 def display_market():
 
-    print("\n")
-    print("=" * 80)
-    print("                 QUANTUM TRADER - ATLAS MARKET SCANNER")
-    print("=" * 80)
+    atlas = Atlas()
+
+    print()
+    print("=" * 90)
+    print("                 QUANTUM TRADER - AI MARKET ANALYSIS")
+    print("=" * 90)
 
     for coin in COINS:
 
         market = get_market_data(coin)
 
         if market is None:
-            print(f"{coin:<10} Unable to retrieve data")
-        else:
+            continue
 
-            arrow = "🟢" if market["change"] >= 0 else "🔴"
+        analysis = atlas.analyze(coin, market)
 
-            print(
-                f"{coin:<10}"
-                f"${market['price']:>12,.4f}"
-                f"   {arrow} {market['change']:+7.2f}%"
-            )
+        print(f"\n{analysis.symbol}")
+        print(f"Price          : ${analysis.price:,.4f}")
+        print(f"24h Change     : {analysis.change:+.2f}%")
+        print(f"Trend          : {analysis.trend}")
+        print(f"Quantum Score  : {analysis.score}")
+        print(f"Recommendation : {analysis.recommendation}")
 
-            # Atlas analyzes and remembers every coin
-            atlas.analyze(coin, market)
+        print("-" * 90)
 
-    print("=" * 80)
+    print("=" * 90)
 
 
 if __name__ == "__main__":

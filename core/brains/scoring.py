@@ -1,54 +1,32 @@
+from core.brains.trend import detect_trend
+from core.brains.momentum import momentum_score
+from core.brains.volume import volume_score
+from core.brains.history import history_score
+
+
 def calculate_score(history, market):
 
     score = 0
 
-    # ---------------------------------
     # Trend
-    # ---------------------------------
+    trend = detect_trend(history)
 
-    if len(history) >= 5:
+    if trend == "UPTREND":
+        score += 30
 
-        prices = [entry["price"] for entry in history[-5:]]
+    elif trend == "DOWNTREND":
+        score -= 20
 
-        increasing = all(
-            prices[i] > prices[i - 1]
-            for i in range(1, len(prices))
-        )
-
-        decreasing = all(
-            prices[i] < prices[i - 1]
-            for i in range(1, len(prices))
-        )
-
-        if increasing:
-            score += 30
-
-        elif decreasing:
-            score -= 20
-
-    # ---------------------------------
     # Momentum
-    # ---------------------------------
+    score += momentum_score(market["change"])
 
-    change = market["change"]
+    # Volume
+    score += volume_score(market["volume"])
 
-    if change > 5:
-        score += 25
+    # Historical Confidence
+    score += history_score(history)
 
-    elif change > 2:
-        score += 15
-
-    elif change < -5:
-        score -= 25
-
-    # ---------------------------------
-    # History Bonus
-    # ---------------------------------
-
-    if len(history) >= 10:
-        score += 10
-
-    # Clamp score between 0 and 100
+    # Clamp score
     score = max(0, min(score, 100))
 
     return score

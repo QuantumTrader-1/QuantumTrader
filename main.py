@@ -1,10 +1,28 @@
-from core.market import display_market
-from core.brains.atlas import Atlas
+from core.engine import QuantumEngine
+from core.dashboard import Dashboard
 
-print("\n🚀 Launching Quantum Trader...\n")
 
-atlas = Atlas()
+def main():
 
-atlas.think()
+    engine = QuantumEngine()
+    dashboard = Dashboard()
 
-display_market()
+    engine.scan_market()
+
+    dashboard.display(engine.top_opportunities())
+
+    best = engine.watchlist.best()
+
+    if best:
+
+        print("\n⭐ BEST OPPORTUNITY")
+        print("-" * 90)
+        print(f"Coin           : {best.symbol}")
+        print(f"Score          : {best.score}")
+        print(f"Trend          : {best.trend}")
+        print(f"Recommendation : {best.recommendation}")
+        print("-" * 90)
+
+
+if __name__ == "__main__":
+    main()
