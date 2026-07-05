@@ -4,71 +4,53 @@ import customtkinter as ctk
 class Sidebar(ctk.CTkFrame):
 
     def __init__(self, master, scan_callback):
-        super().__init__(master, width=260)
+        super().__init__(master, width=220)
 
-        self.grid_rowconfigure(10, weight=1)
+        self.scan_callback = scan_callback
 
-        self.scan_button = ctk.CTkButton(
+        title = ctk.CTkLabel(
             self,
-            text="🔄 Scan Market",
-            command=scan_callback,
-            height=42
-        )
-
-        self.scan_button.pack(
-            fill="x",
-            padx=15,
-            pady=(20, 15)
-        )
-
-        self.best_title = ctk.CTkLabel(
-            self,
-            text="⭐ Best Opportunity",
+            text="Navigation",
             font=("Segoe UI", 18, "bold")
         )
 
-        self.best_title.pack(pady=(10, 5))
+        title.pack(pady=(20, 15))
 
-        self.best_box = ctk.CTkTextbox(
+        self._nav_button("🏠 Dashboard")
+        self._nav_button("📈 Scanner")
+        self._nav_button("⭐ Watchlist")
+        self._nav_button("💼 Portfolio")
+        self._nav_button("📄 Paper Trading")
+        self._nav_button("🔔 Alerts")
+        self._nav_button("📰 News")
+        self._nav_button("🤖 Atlas AI")
+        self._nav_button("⚙ Settings")
+
+        ctk.CTkButton(
             self,
-            width=220,
-            height=260
+            text="🔄 Scan Market",
+            command=self.scan_callback,
+            height=40
+        ).pack(
+            side="bottom",
+            fill="x",
+            padx=10,
+            pady=15
         )
 
-        self.best_box.pack(
-            fill="both",
-            expand=True,
-            padx=15,
-            pady=10
+    def _nav_button(self, text):
+
+        ctk.CTkButton(
+            self,
+            text=text,
+            fg_color="transparent",
+            anchor="w",
+            hover_color="#2B2B2B"
+        ).pack(
+            fill="x",
+            padx=10,
+            pady=3
         )
 
     def update_best(self, coin):
-
-        self.best_box.delete("1.0", "end")
-
-        if coin is None:
-            return
-
-        self.best_box.insert(
-            "end",
-            f"""⭐ BEST OPPORTUNITY
-
-Coin:
-{coin.symbol}
-
-Score:
-{coin.score}
-
-Signal:
-{coin.signal}
-
-Risk:
-{coin.risk}
-
-Trend:
-{coin.trend}
-
-Recommendation:
-{coin.recommendation}
-"""
-        )
+        pass

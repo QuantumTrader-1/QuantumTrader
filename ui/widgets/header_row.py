@@ -7,7 +7,8 @@ class HeaderRow(ctk.CTkFrame):
         super().__init__(master, fg_color="transparent")
 
         columns = [
-            ("Coin", 120),
+            ("★", 40),
+            ("Coin", 100),
             ("Score", 70),
             ("Signal", 110),
             ("Risk", 90),
@@ -18,11 +19,11 @@ class HeaderRow(ctk.CTkFrame):
         ]
 
         for text, width in columns:
-            label = ctk.CTkLabel(
+
+            ctk.CTkLabel(
                 self,
                 text=text,
                 width=width,
                 anchor="w",
                 font=("Segoe UI", 14, "bold"),
-            )
-            label.pack(side="left", padx=4, pady=6)
+            ).pack(side="left", padx=4, pady=6)
