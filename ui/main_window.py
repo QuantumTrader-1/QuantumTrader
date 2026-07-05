@@ -8,6 +8,7 @@ from ui.sidebar import Sidebar
 from ui.dashboard_panel import DashboardPanel
 from ui.market_table import MarketTable
 from ui.detail_panel import DetailPanel
+from ui.chart_panel import ChartPanel
 from ui.status_bar import StatusBar
 
 
@@ -26,11 +27,12 @@ class MainWindow(ctk.CTk):
         self.sort_descending = True
 
         self.title("Quantum Trader Genesis")
-        self.geometry("1700x950")
-        self.minsize(1500, 850)
+        self.geometry("1850x980")
+        self.minsize(1650, 900)
 
-        self.grid_columnconfigure(1, weight=3)
+        self.grid_columnconfigure(1, weight=4)
         self.grid_columnconfigure(2, weight=2)
+
         self.grid_rowconfigure(3, weight=1)
 
         # Header
@@ -62,7 +64,6 @@ class MainWindow(ctk.CTk):
 
         # Dashboard
         self.dashboard = DashboardPanel(self)
-
         self.dashboard.grid(
             row=2,
             column=1,
@@ -73,11 +74,7 @@ class MainWindow(ctk.CTk):
         )
 
         # Sidebar
-        self.sidebar = Sidebar(
-            self,
-            self.scan_market
-        )
-
+        self.sidebar = Sidebar(self, self.scan_market)
         self.sidebar.grid(
             row=2,
             rowspan=2,
@@ -89,7 +86,6 @@ class MainWindow(ctk.CTk):
 
         # Market Table
         self.market = MarketTable(self)
-
         self.market.grid(
             row=3,
             column=1,
@@ -98,10 +94,9 @@ class MainWindow(ctk.CTk):
             pady=10
         )
 
-        # Details
-        self.details = DetailPanel(self)
-
-        self.details.grid(
+        # Right Panel
+        self.right_panel = ctk.CTkFrame(self)
+        self.right_panel.grid(
             row=3,
             column=2,
             sticky="nsew",
@@ -109,9 +104,30 @@ class MainWindow(ctk.CTk):
             pady=10
         )
 
+        self.right_panel.grid_rowconfigure(0, weight=2)
+        self.right_panel.grid_rowconfigure(1, weight=1)
+        self.right_panel.grid_columnconfigure(0, weight=1)
+
+        self.chart = ChartPanel(self.right_panel)
+        self.chart.grid(
+            row=0,
+            column=0,
+            sticky="nsew",
+            padx=5,
+            pady=(5, 2)
+        )
+
+        self.details = DetailPanel(self.right_panel)
+        self.details.grid(
+            row=1,
+            column=0,
+            sticky="nsew",
+            padx=5,
+            pady=(2, 5)
+        )
+
         # Status
         self.status = StatusBar(self)
-
         self.status.grid(
             row=4,
             column=0,
@@ -122,6 +138,8 @@ class MainWindow(ctk.CTk):
         self.scan_market()
 
     def coin_selected(self, coin):
+
+        self.chart.show_coin(coin)
         self.details.show_coin(coin)
 
     def refresh_table(self):
@@ -149,6 +167,7 @@ class MainWindow(ctk.CTk):
 
         if best:
             self.sidebar.update_best(best)
+            self.chart.show_coin(best)
             self.details.show_coin(best)
 
         self.status.set_status(
@@ -171,8 +190,7 @@ class MainWindow(ctk.CTk):
             self.filtered_coins = list(self.all_coins)
         else:
             self.filtered_coins = [
-                coin
-                for coin in self.all_coins
+                coin for coin in self.all_coins
                 if text in coin.symbol.upper()
             ]
 
