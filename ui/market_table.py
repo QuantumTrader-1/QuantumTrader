@@ -1,46 +1,38 @@
 import customtkinter as ctk
-from CTkTable import CTkTable
+
+from ui.widgets.header_row import HeaderRow
+from ui.widgets.market_row import MarketRow
 
 
-class MarketTable(ctk.CTkFrame):
+class MarketTable(ctk.CTkScrollableFrame):
 
     def __init__(self, master):
         super().__init__(master)
 
-        self.table = None
+        self.header = HeaderRow(self)
+        self.header.pack(fill="x", pady=(0, 10))
 
-    def update_table(self, opportunities):
+        self.rows = []
 
-        if self.table:
-            self.table.destroy()
+    def update_table(self, opportunities, callback=None):
 
-        values = [[
-            "Coin",
-            "Score",
-            "Signal",
-            "Risk",
-            "Trend",
-            "24h %",
-            "Price",
-            "Recommendation"
-        ]]
+        for row in self.rows:
+            row.destroy()
+
+        self.rows.clear()
 
         for coin in opportunities:
 
-            values.append([
-                coin.symbol,
-                str(coin.score),
-                coin.signal,
-                coin.risk,
-                coin.trend,
-                f"{coin.change:+.2f}%",
-                f"${coin.price:,.4f}",
-                coin.recommendation
-            ])
+            row = MarketRow(
+                self,
+                coin,
+                callback
+            )
 
-        self.table = CTkTable(
-            master=self,
-            values=values
-        )
+            row.pack(
+                fill="x",
+                padx=5,
+                pady=2
+            )
 
-        self.table.pack(fill="both", expand=True)
+            self.rows.append(row)

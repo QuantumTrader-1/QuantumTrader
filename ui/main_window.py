@@ -23,7 +23,6 @@ class MainWindow(ctk.CTk):
 
         self.grid_columnconfigure(1, weight=3)
         self.grid_columnconfigure(2, weight=2)
-
         self.grid_rowconfigure(1, weight=1)
 
         header = ctk.CTkLabel(
@@ -83,15 +82,26 @@ class MainWindow(ctk.CTk):
 
         self.scan_market()
 
+    # --------------------------------------------------
+
+    def coin_selected(self, coin):
+
+        self.details.show_coin(coin)
+
+    # --------------------------------------------------
+
     def scan_market(self):
 
         self.status.set_status("🔄 Scanning Coinbase...")
 
         self.engine.scan_market()
 
-        opportunities = self.engine.top_opportunities()
+        coins = self.engine.top_opportunities()
 
-        self.market.update_table(opportunities)
+        self.market.update_table(
+            coins,
+            self.coin_selected
+        )
 
         best = self.engine.best_opportunity()
 
@@ -99,4 +109,6 @@ class MainWindow(ctk.CTk):
 
         self.details.show_coin(best)
 
-        self.status.set_status("🟢 Ready")
+        self.status.set_status(
+            f"🟢 Ready • {len(coins)} coins loaded"
+        )
