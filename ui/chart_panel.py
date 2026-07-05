@@ -1,56 +1,102 @@
 import customtkinter as ctk
 
+from ui.widgets.candlestick_chart import CandlestickChart
+from core.services.chart_service import ChartService
+
 
 class ChartPanel(ctk.CTkFrame):
 
     def __init__(self, master):
         super().__init__(master)
 
+        self.service = ChartService()
+
+        self.current_coin = None
+
+        self.granularity = 3600
+
         title = ctk.CTkLabel(
             self,
-            text="📈 Live Chart",
+            text="📈 Live Market Chart",
             font=("Segoe UI", 22, "bold")
         )
 
-        title.pack(pady=(15, 10))
+        title.pack(pady=(15, 5))
 
         self.coin_label = ctk.CTkLabel(
             self,
-            text="Select a Coin",
+            text="Loading...",
             font=("Segoe UI", 18)
         )
 
-        self.coin_label.pack(pady=5)
+        self.coin_label.pack()
 
-        self.chart = ctk.CTkFrame(
-            self,
-            height=420,
-            corner_radius=12
+        toolbar = ctk.CTkFrame(self)
+
+        toolbar.pack(
+            fill="x",
+            padx=15,
+            pady=(10, 5)
         )
+
+        timeframes = [
+            ("1m", 60),
+            ("5m", 300),
+            ("15m", 900),
+            ("1H", 3600),
+            ("6H", 21600),
+            ("1D", 86400),
+        ]
+
+        for text, value in timeframes:
+
+            ctk.CTkButton(
+                toolbar,
+                text=text,
+                width=55,
+                command=lambda g=value: self.change_timeframe(g)
+            ).pack(
+                side="left",
+                padx=3,
+                pady=5
+            )
+
+        self.chart = CandlestickChart(self)
 
         self.chart.pack(
             fill="both",
             expand=True,
-            padx=20,
-            pady=20
+            padx=15,
+            pady=(5, 15)
         )
 
-        self.placeholder = ctk.CTkLabel(
-            self.chart,
-            text="Live Chart Coming Soon",
-            font=("Segoe UI", 20)
-        )
+    def change_timeframe(self, granularity):
 
-        self.placeholder.place(
-            relx=.5,
-            rely=.5,
-            anchor="center"
-        )
+        self.granularity = granularity
+
+        if self.current_coin:
+
+            self.show_coin(self.current_coin)
 
     def show_coin(self, coin):
 
-        if coin:
+        if coin is None:
+            return
 
-            self.coin_label.configure(
-                text=f"{coin.symbol}   ${coin.price:,.4f}"
+        self.current_coin = coin
+
+        self.coin_label.configure(
+            text=f"{coin.symbol}   ${coin.price:,.4f}"
+        )
+
+        df = self.service.get_candles(
+            coin.symbol,
+            self.granularity
+        )
+
+        if df is not None:
+
+            self.chart.plot_dataframe(
+                df,
+                coin.symbol
             )
